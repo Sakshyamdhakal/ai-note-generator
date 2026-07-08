@@ -1,3 +1,5 @@
+import { Link } from "@inertiajs/react";
+
 export default function Home() {
     const currentYear = new Date().getFullYear();
 
@@ -51,9 +53,9 @@ export default function Home() {
                         </a>
                     </nav>
                     <div className="hidden lg:flex items-center gap-3 text-sm font-medium text-slate-400">
-                        <button className="px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5">
+                        <Link href="/dashboard" className="cursor-pointer px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5">
                             Launch App
-                        </button>
+                        </Link>
                         <button className="px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5">
                             SignUp
                         </button>
@@ -64,7 +66,7 @@ export default function Home() {
                 </div>
             </header>
 
-                {/* Intro-part */}
+            {/* Intro-part */}
 
             <section className="max-w-5xl mx-auto my-30 px-6 pt-24 pb-16 text-center relative z-10">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-xs font-semibold text-indigo-400 mb-8">
@@ -95,7 +97,10 @@ export default function Home() {
 
             {/* App preview section */}
 
-            <section id="preview" className="max-w-6xl mx-auto px-6 pb-32 scroll-mt-30">
+            <section
+                id="preview"
+                className="max-w-6xl mx-auto px-6 pb-32 scroll-mt-30"
+            >
                 <img
                     src="https://designshack.net/wp-content/uploads/What-is-an-Adaptive-UI.jpg"
                     alt=""
@@ -340,7 +345,6 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-
 
             {/* price listing  */}
 
@@ -691,7 +695,7 @@ export default function Home() {
             <div className="flex justify-center items-center my-12">
                 <span className="inline-flex items-center gap-x-1.5 rounded-full bg-indigo-500/10 px-4 py-1.5 text-lg font-semibold text-indigo-400 ring-1 ring-inset ring-indigo-500/20 backdrop-blur-md tracking-wide uppercase">
                     <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
-                        Get in touch
+                    Get in touch
                 </span>
             </div>
             <section
@@ -699,7 +703,6 @@ export default function Home() {
                 className="max-w-7xl mx-auto px-20 pb-24 grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10"
             >
                 <div className="flex flex-col justify-center space-y-4">
-
                     <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                         Let's start a{" "}
                         <span className="text-indigo-500">conversation</span>
