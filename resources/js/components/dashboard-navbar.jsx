@@ -23,9 +23,6 @@ export default function Dashboardnavbar({onViewChange}) {
                             />
                         </svg>
                     </button>
-                    <button onClick={() => onViewChange("history")} className="cursor-pointer px-6 py-1.5 rounded-md bg-white/10 text-sm font-semibold text-white hover:bg-white/20 transition-all shadow-lg shadow-white/5">
-                        History
-                    </button>
                     <button onClick={() => onViewChange("new-note")} className="cursor-pointer px-6 py-1.5 rounded-md bg-gradient-to-r from-indigo-500 to-indigo-600 font-semibold text-white hover:bg-none border border-white/[0.3] hover:border-white/[0.2] text-sm font-semibold transition-all shadow-lg shadow-white/5 transition-all">
                         + New note
                     </button>
