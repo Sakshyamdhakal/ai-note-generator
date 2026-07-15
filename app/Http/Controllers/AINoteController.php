@@ -151,4 +151,8 @@ class AINoteController extends Controller
         $note->favorite = !$note->favorite;
         $note->save();
     }
+
+    public function delete(Note $note){
+        $note->delete();
+    }
 }

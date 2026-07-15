@@ -2,13 +2,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { router } from "@inertiajs/react";
-export default function Noteslist({
-    notes = [],
-    onSelectNote,
-    onDeleteNote,
-    onDownloadNote,
-    activeNoteId,
-}) {
+export default function Noteslist({ notes = [], activeNoteId }) {
     const [dbNotes, setDbNotes] = useState(notes);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -140,6 +134,37 @@ export default function Noteslist({
         }
     };
 
+    const onDeleteNote = async (id) => {
+        const csrf = document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute("content");
+
+        const res = await fetch(`/notes/${id}/delete`, {
+            method: "DELETE",
+            headers: {
+                ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
+            },
+        });
+
+        // Some Laravel deletes return 204 with an empty body
+        if (!res.ok) {
+            let data = {};
+            try {
+                data = await res.json();
+            } catch {}
+            throw new Error(data?.message || "Failed to delete note");
+        }
+
+        // Optimistically remove from UI
+        setDbNotes((prev) => (prev || []).filter((n) => n.id !== id));
+
+        // Optional: you can refetch for consistency
+        // await refetchNotes();
+    };
+
+        const [expanded, setExpanded] = useState(false);
+
+
     return (
         <div className="min-h-screen py-5 px-7 w-full border border-white/10 bg-[#0A0B0D] text-[#E7E5E0]">
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800/50">
@@ -167,14 +192,21 @@ export default function Noteslist({
                         const isActive = activeNoteId === note.id;
                         return (
                             <div
+                                onClick={() =>
+                                    setExpanded(
+                                        expanded === note.id ? null : note.id,
+                                    )
+                                }
                                 key={note.id}
                                 // onClick={() => onSelectNote(note)}
                                 className={`group relative flex flex-col gap-2 p-3 rounded-xl border transition-all duration-200 text-left
                                     ${
                                         isActive
-                                            ? "bg-slate-800/40 border-indigo-500/40 shadow-lg shadow-indigo-500/5"
-                                            : "bg-slate-900/40 border-slate-800/60 hover:bg-slate-850/30 hover:border-slate-700/60"
-                                    }`}
+                                            ? "bg-slate-800/40 border-indigo-500/40 shadow-lg shadow-indigo-500/5 "
+                                            : "cursor-pointer bg-slate-900/40 border-slate-800/60 hover:bg-slate-850/30 hover:border-slate-700/60  h-30 focus:h-300   transition-all duration-500 ease-in-out"
+                                    }
+                                    ${expanded === note.id ? "h-170" : "h-30"}
+                                    `}
                             >
                                 {/* Header: Title & Layout Badge */}
                                 <div className="flex items-start justify-between gap-2">
@@ -217,7 +249,7 @@ export default function Noteslist({
                                 </div>
 
                                 {/* Sneak Peek Text Content Snippet */}
-                                <div className="text-xs text-slate-400 line-clamp-2 leading-relaxed whitespace-pre-wrap">
+                                <div className="text-xs text-slate-400 overflow-y-auto scroll leading-relaxed">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
                                         components={{

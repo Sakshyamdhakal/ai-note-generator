@@ -7,7 +7,6 @@ import Noteslist from "./mynote";
 import TrashView from "./trash";
 import Favoritepage from "./favorite";
 
-function DefaultDashboardHome() { return <div className="p-6">🏠 Welcome to your Dashboard Home</div>; }
 
 export default function Dashboard() {
     const [activeView, setActiveView] = useState("dashboard");
@@ -35,7 +34,7 @@ useEffect(() => {
             case "trash":
                 return <TrashView />;
             default:    
-                return <DefaultDashboardHome />;
+                return <Newnote />;
         }
     };
 

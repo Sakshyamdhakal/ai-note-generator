@@ -15,6 +15,7 @@ Route::get('/', function () {
         });
 
         Route::patch('/notes/{note}/favorite',[AINoteController::class , 'favorite']);
+        Route::delete('/notes/{note}/delete',[AINoteController::class , 'delete']);
 
 //     }
 // );

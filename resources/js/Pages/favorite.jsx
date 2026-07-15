@@ -109,7 +109,7 @@ export default function Favoritepage({
         <div className="min-h-screen py-5 px-7 w-full border border-white/10 bg-[#0A0B0D] text-[#E7E5E0]">
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800/50">
                 <h3 className="text-sm font-semibold tracking-wide uppercase text-slate-400">
-                    Favorite Documents ({effectiveNotes.length})
+                    Favorite Documents
                 </h3>
             </div>
 
