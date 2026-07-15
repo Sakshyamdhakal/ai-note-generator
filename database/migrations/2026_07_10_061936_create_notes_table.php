@@ -13,7 +13,18 @@ return new class extends Migration
     {
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
+            $table->longText('draft')->nullable();
+            $table->longText('notegenerated')->nullable();
+            $table->string('filter_used')->nullable();
+            $table->string('favorite')->default(0);
+
             $table->timestamps();
+
+            // helpful for lookups
+            $table->index(['user_id', 'filter_used']);
         });
     }
 

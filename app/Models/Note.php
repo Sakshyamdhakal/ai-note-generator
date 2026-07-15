@@ -11,6 +11,7 @@ class Note extends Model
         'draft',
         'notegenerated',
         'filter_used',
+        'favorite',
     ];
 
     public function user(){

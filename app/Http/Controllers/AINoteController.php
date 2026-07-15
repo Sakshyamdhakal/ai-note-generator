@@ -2,11 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Note;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AINoteController extends Controller
 {
+    public function listNotes(Request $request)
+    {
+        // NOTE: for now your app is not fully auth-wired for React,
+        // so this returns notes for the first user.
+        // Replace with $request->user() once auth is enabled.
+        $user = User::orderBy('id')->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => true,
+                'notes' => [],
+            ]);
+        }
+
+        $notes = Note::query()
+            ->where('user_id', $user->id)
+            ->orderByDesc('id')
+            ->get(['id', 'notegenerated', 'filter_used', 'draft', 'created_at', 'favorite']);
+
+
+        $formatted = $notes->map(function ($note) {
+            return [
+                'id' => $note->id,
+                'title' => $note->notegenerated ? trim(strtok($note->notegenerated, "\n")) : null,
+                'content' => $note->notegenerated,
+                'filterUsed' => $note->filter_used,
+                'created_at' => $note->created_at?->toISOString(),
+                'favorite' => $note->favorite,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'notes' => $formatted,
+        ]);
+    }
+
     public function generateNote(Request $request)
     {
         // 1. Validate the incoming request from React
@@ -21,7 +62,7 @@ class AINoteController extends Controller
         $filter = $request->input('filter', 'default');
 
         // 2. Define your custom filters / instructions (Hidden from the user)
-        $instructions = "You are a professional document generator. Transform the user's raw script or text into a cleanly formatted document. Do not include conversational filler like 'Sure, here is your text' or introductory remarks. Output ONLY the final processed document text. Then also add table for like comparision or listing .";
+        $instructions = "You are a professional document generator. Transform the user's raw script or text into a cleanly formatted document. Do not include conversational filler like 'Sure, here is your text' or introductory remarks. Output ONLY the final processed document text. Then also add table for like comparision or listing and script must be completely unique. Add a title in the generated text which you think might look suitable.";
 
         if ($filter === 'bullet_points') {
             $instructions .= " Format the output strictly as concise, high-impact bullet points. If you get prompt as short then ignore else generate numerous bullet points";
@@ -57,9 +98,31 @@ class AINoteController extends Controller
             // Extract the text content from Gemini's nested response structure
             $generatedText = $data['candidates'][0]['content']['parts'][0]['text'] ?? 'Failed to parse AI response.';
 
+            // For now (no auth wiring yet): save notes as a dummy user.
+            // Later you can replace this with authenticated user id.
+            $dummyUser = User::orderBy('id')->first();
+
+            $note = null;
+            if ($dummyUser) {
+                $note = Note::create([
+                    'user_id' => $dummyUser->id,
+                    'draft' => $userScript,
+                    'notegenerated' => $generatedText,
+                    'filter_used' => $filter,
+                ]);
+            }
+
             return response()->json([
                 'success' => true,
                 'document' => $generatedText,
+                'note' => $note ? [
+                    'id' => $note->id,
+                    'title' => $note->notegenerated ? trim(strtok($note->notegenerated, "\n")) : null,
+                    'content' => $note->notegenerated,
+                    'filterUsed' => $note->filter_used,
+                    'favorite' => $note->favorite,
+                    'created_at' => $note->created_at,
+                ] : null,
             ]);
         }
 
@@ -71,5 +134,22 @@ class AINoteController extends Controller
             'gemini_response' => $response->body(),
             'api_key_missing' => empty($apiKey),
         ], 500);
+    }
+
+    public function download(Note $note)
+    {
+        $html = Str::markdown($note->notegenerated);
+        $pdf = Pdf::loadView('pdf.note', [
+            'content' => $html,
+        ]);
+
+        return $pdf->download("note-{$note->id}.pdf");
+    }
+
+    public function favorite(Note $note)
+    {
+        $note->favorite = !$note->favorite;
+        $note->save();
+        // return back();
     }
 }
