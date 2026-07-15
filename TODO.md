@@ -1,0 +1,3 @@
+- [x] Update favorite toggle logic in resources/js/Pages/mynote.jsx to refetch notes after PATCH
+- [x] Make SVG fill condition robust using Number(note.favorite) === 1
+- [ ] Quick manual test: click favorite button and verify SVG color updates
