@@ -150,6 +150,5 @@ class AINoteController extends Controller
     {
         $note->favorite = !$note->favorite;
         $note->save();
-        // return back();
     }
 }

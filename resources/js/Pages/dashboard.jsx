@@ -5,18 +5,24 @@ import Newnote from "./newnote";
 import NotesHistoryList from "./mynote";
 import Noteslist from "./mynote";
 import TrashView from "./trash";
+import Favoritepage from "./favorite";
 
-function FavoritesView() { return <div className="p-6">⭐ Favorites View goes here</div>; }
 function DefaultDashboardHome() { return <div className="p-6">🏠 Welcome to your Dashboard Home</div>; }
 
 export default function Dashboard() {
-    const [activeView, setActiveView] = useState(() => {
-        return localStorage.getItem("app_active_view") || "dashboard";
-    });
+    const [activeView, setActiveView] = useState("dashboard");
 
-    useEffect(() => {
-        localStorage.setItem("app_active_view", activeView);
-    }, [activeView]);
+useEffect(() => {
+    const savedView = localStorage.getItem("app_active_view");
+
+    if (savedView) {
+        setActiveView(savedView);
+    }
+}, []);
+
+useEffect(() => {
+    localStorage.setItem("app_active_view", activeView);
+}, [activeView]);
 
     const renderMainContent = () => {
         switch (activeView) {
@@ -25,10 +31,10 @@ export default function Dashboard() {
             case "my-note":
                 return <Noteslist />;
             case "favorites":
-                return <FavoritesView />;
+                return <Favoritepage />;
             case "trash":
                 return <TrashView />;
-            default:
+            default:    
                 return <DefaultDashboardHome />;
         }
     };

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { router } from "@inertiajs/react";
-export default function Noteslist({
+export default function Favoritepage({
     notes = [],
     onSelectNote,
     onDeleteNote,
@@ -89,62 +89,27 @@ export default function Noteslist({
         );
     };
 
-    const isFavorite = async (id) => {
-        // Optimistic UI: flip favorite immediately.
-        setDbNotes((prev) =>
-            (prev || []).map((n) =>
-                n.id === id
-                    ? {
-                          ...n,
-                          favorite: Number(n.favorite) === 1 ? 0 : 1,
-                      }
-                    : n,
-            ),
-        );
-
-        try {
-            const res = await fetch(`/notes/${id}/favorite`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest",
-                    "X-CSRF-TOKEN": document
-                        .querySelector("meta[name='csrf-token']")
-                        ?.getAttribute("content"),
-                },
-                body: JSON.stringify({}),
-            });
-
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok || !data.success) {
-                throw new Error(data?.message || "Failed to update favorite");
-            }
-
-            // Sync with server value.
-            setDbNotes((prev) =>
-                (prev || []).map((n) =>
-                    n.id === id
-                        ? {
-                              ...n,
-                              favorite:
-                                  Number(data.note?.favorite) === 1 ? 1 : 0,
-                          }
-                        : n,
-                ),
-            );
-        } catch (e) {
-            console.error(e);
-            setError(e?.message || "Failed to update favorite");
-            // Revert by refetching.
-            refetchNotes();
-        }
+    const isFavorite = (id) => {
+        // Inertia's router.patch does not always return a real Promise (so `.then()` can be undefined).
+        // Refetch immediately after the PATCH request completes via onSuccess.
+        router.patch(`/notes/${id}/favorite`, {
+            onSuccess: () => {
+                // Refetch instead of optimistic local update; favorite column is a string in DB.
+                refetchNotes();
+                setFlag(1);
+            },
+            onError: (e) => {
+                console.error(e);
+                setError(e?.message || "Failed to update favorite");
+            },
+        });
     };
 
     return (
         <div className="min-h-screen py-5 px-7 w-full border border-white/10 bg-[#0A0B0D] text-[#E7E5E0]">
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800/50">
                 <h3 className="text-sm font-semibold tracking-wide uppercase text-slate-400">
-                    Generated Documents ({effectiveNotes.length})
+                    Favorite Documents ({effectiveNotes.length})
                 </h3>
             </div>
 
@@ -165,6 +130,10 @@ export default function Noteslist({
                 ) : (
                     effectiveNotes.map((note) => {
                         const isActive = activeNoteId === note.id;
+
+                        // DB may return favorite as string ("1"/"0"), so normalize.
+                        if (Number(note.favorite) !== 1) return null;
+
                         return (
                             <div
                                 key={note.id}
@@ -187,74 +156,7 @@ export default function Noteslist({
                                         >
                                             {formatFilterName(note.filterUsed)}
                                         </span>
-
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                isFavorite(note.id);
-                                            }}
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill={
-                                                    Number(note.favorite) === 1
-                                                        ? "#FFD700"
-                                                        : "none"
-                                                }
-                                                viewBox="0 0 24 24"
-                                                strokeWidth="2"
-                                                stroke="currentColor"
-                                                className="size-5 cursor-pointer text-white/50 hover:text-[#FFD700]"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"
-                                                />
-                                            </svg>
-                                        </button>
                                     </div>
-                                </div>
-
-                                {/* Sneak Peek Text Content Snippet */}
-                                <div className="text-xs text-slate-400 line-clamp-2 leading-relaxed whitespace-pre-wrap">
-                                    <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            table: ({ children }) => (
-                                                <table className="w-full border-collapse border border-[#262A31] my-4">
-                                                    {children}
-                                                </table>
-                                            ),
-                                            thead: ({ children }) => (
-                                                <thead className="bg-[#1A1C20] text-[#E7E5E0]">
-                                                    {children}
-                                                </thead>
-                                            ),
-                                            tbody: ({ children }) => (
-                                                <tbody className="text-[#E7E5E0]">
-                                                    {children}
-                                                </tbody>
-                                            ),
-                                            tr: ({ children }) => (
-                                                <tr className="border-b border-[#262A31]">
-                                                    {children}
-                                                </tr>
-                                            ),
-                                            th: ({ children }) => (
-                                                <th className="border border-[#262A31] px-4 py-2 text-left text-[#E7E5E0]">
-                                                    {children}
-                                                </th>
-                                            ),
-                                            td: ({ children }) => (
-                                                <td className="border border-[#262A31] px-4 py-2 text-[#E7E5E0]">
-                                                    {children}
-                                                </td>
-                                            ),
-                                        }}
-                                    >
-                                        {note.content || ""}
-                                    </ReactMarkdown>
                                 </div>
 
                                 {/* Footer Data & Hidden Fast Action Hover Controls */}
@@ -292,29 +194,6 @@ export default function Noteslist({
                                                     stroke-linecap="round"
                                                     stroke-linejoin="round"
                                                     d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
-                                                />
-                                            </svg>
-                                        </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                onDeleteNote(note.id);
-                                            }}
-                                            className="cursor-pointer text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition-colors"
-                                            title="Delete Note"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke-width="1.5"
-                                                stroke="currentColor"
-                                                class="size-5"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
                                                 />
                                             </svg>
                                         </button>

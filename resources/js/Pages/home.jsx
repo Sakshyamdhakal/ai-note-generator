@@ -102,7 +102,7 @@ export default function Home() {
                 className="max-w-6xl mx-auto px-6 pb-32 scroll-mt-30"
             >
                 <img
-                    src="https://designshack.net/wp-content/uploads/What-is-an-Adaptive-UI.jpg"
+                    src="/appinterface.png"
                     alt=""
                 />
             </section>
