@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import Dashboardnavbar from "../components/dashboard-navbar";
 import Sidebar from "../components/sidebar";
 import Newnote from "./newnote";
-import NotesHistoryList from "./mynote";
 import Noteslist from "./mynote";
-import TrashView from "./trash";
 import Favoritepage from "./favorite";
 
 
@@ -31,8 +29,7 @@ useEffect(() => {
                 return <Noteslist />;
             case "favorites":
                 return <Favoritepage />;
-            case "trash":
-                return <TrashView />;
+                
             default:    
                 return <Newnote />;
         }

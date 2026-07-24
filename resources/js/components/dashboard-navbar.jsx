@@ -1,9 +1,12 @@
 export default function Dashboardnavbar({onViewChange}) {
+    
     return (
         <header className="w-full sticky top-0 z-10 backdrop-blur-md bg-[#090D16]/100 border-b border-white/[0.1]">
             <div className="max-w-7xl mx-auto px-5 h-30 flex items-center justify-between">
-                <div onClick={() => onViewChange("home")} className="cursor-pointer flex items-center gap-2 font-bold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                    <span className="text-indigo-500 text-3xl">NoteForge</span>
+                <div  className="cursor-pointer flex items-center gap-2 font-bold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                    <span className="text-indigo-500 text-3xl">
+                        <a href="/">NoteForge</a>
+                    </span>
                 </div>
 
                 <div className="hidden lg:flex items-center gap-3 text-sm font-medium text-slate-400">

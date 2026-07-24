@@ -150,9 +150,14 @@ class AINoteController extends Controller
     {
         $note->favorite = !$note->favorite;
         $note->save();
+        return response()->json([
+            'success' => true,
+            'note' => $note,
+        ]);
     }
 
-    public function delete(Note $note){
+    public function delete(Note $note)
+    {
         $note->delete();
     }
 }
