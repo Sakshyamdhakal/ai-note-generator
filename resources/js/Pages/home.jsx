@@ -1,8 +1,8 @@
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 
 export default function Home() {
     const currentYear = new Date().getFullYear();
-
+    const { auth } = usePage().props;
     return (
         <div className="min-h-screen bg-[#090D16] text-slate-100 font-sans selection:bg-indigo-500/30 selection:text-indigo-200 overflow-x-hidden relative">
             <div className="absolute top-0 left-3/6 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
@@ -53,22 +53,37 @@ export default function Home() {
                         </a>
                     </nav>
                     <div className="hidden lg:flex items-center gap-3 text-sm font-medium text-slate-400">
-                        <Link href="/dashboard" className="cursor-pointer px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5">
-                            Launch App
-                        </Link>
-                        <button className="px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5">
-                            SignUp
-                        </button>
-                        <button className="px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5">
-                            Login
-                        </button>
+                        {auth?.user ? (
+                            <Link
+                                href="/dashboard"
+                                className="cursor-pointer px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5"
+                            >
+                                Launch App
+                            </Link>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/register"
+                                    className="px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5"
+                                >
+                                    Sign Up
+                                </Link>
+
+                                <Link
+                                    href="/login"
+                                    className="px-5 py-2.5 rounded-xl bg-white text-sm font-semibold text-[#090D16] hover:bg-slate-200 transition-all shadow-lg shadow-white/5"
+                                >
+                                    Login
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </header>
 
             {/* Intro-part */}
 
-            <section className="max-w-5xl mx-auto my-30 px-6 pt-24 pb-16 text-center relative z-10">
+            <section className="max-w-5xl mx-auto pt-40 pb-16 px-6 text-center relative z-10">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-xs font-semibold text-indigo-400 mb-8">
                     Powered by Gemini AI
                 </div>
@@ -86,12 +101,19 @@ export default function Home() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-                    <button className="w-full cursor-pointer sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 font-semibold text-white shadow-xl shadow-indigo-500/20 hover:opacity-95 transition-opacity">
+                    <Link
+                        href="/register"
+                        className="w-full cursor-pointer sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 font-semibold text-white shadow-xl shadow-indigo-500/20 hover:opacity-95 transition-opacity"
+                    >
                         Start Generating Free
-                    </button>
-                    <button className="w-full cursor-pointer sm:w-auto px-8 py-4 rounded-xl bg-white/[0.03] border border-white/[0.08] font-semibold text-slate-300 hover:bg-white/[0.06] hover:text-white transition-all">
+                    </Link>
+                    <a
+                        target="_blank"
+                        href="https://www.youtube.com/watch?v=hNgI9E_-v24&list=RDcl0a3i2wFcc&index=4"
+                        className="w-full cursor-pointer sm:w-auto px-8 py-4 rounded-xl bg-white/[0.03] border border-white/[0.08] font-semibold text-slate-300 hover:bg-white/[0.06] hover:text-white transition-all"
+                    >
                         Watch tutorial
-                    </button>
+                    </a>
                 </div>
             </section>
 
@@ -99,11 +121,12 @@ export default function Home() {
 
             <section
                 id="preview"
-                className="max-w-6xl mx-auto px-6 pb-32 scroll-mt-30"
+                className="scroll-mt-28 max-w-6xl mx-auto px-6 pb-32"
             >
                 <img
                     src="/appinterface.png"
-                    alt=""
+                    alt="NoteForge app interface preview"
+                    className="rounded-2xl border border-white/[0.06] shadow-2xl shadow-black/40"
                 />
             </section>
 
@@ -117,7 +140,7 @@ export default function Home() {
             </div>
             <section
                 id="features"
-                className="max-w-7xl mx-auto px-20 pb-32 grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 justify-items-center scroll-mt-50"
+                className="scroll-mt-28 max-w-7xl mx-auto px-6 md:px-20 pb-32 grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 justify-items-center"
             >
                 <div className="w-full max-w-md p-8 rounded-2xl border border-white/[0.04] bg-white/[0.01] hover:border-white/[0.08] transition-all">
                     <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6 text-indigo-400">
@@ -189,8 +212,8 @@ export default function Home() {
                         Secure by Default
                     </h4>
                     <p className="text-sm text-slate-400 leading-relaxed">
-                        Your notes are safe in our cloud and is easily
-                        accessible too.
+                        Your notes are safe in our cloud and easily accessible
+                        too.
                     </p>
                 </div>
 
@@ -200,13 +223,13 @@ export default function Home() {
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            stroke-width="1.5"
+                            strokeWidth="1.5"
                             stroke="currentColor"
-                            class="size-6"
+                            className="w-6 h-6"
                         >
                             <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                                 d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
                             />
                         </svg>
@@ -255,7 +278,7 @@ export default function Home() {
             </div>
             <section
                 id="howtouse"
-                className="max-w-7xl mx-auto px-6 sm:px-12 md:px-20 pb-24 grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10 scroll-mt-50"
+                className="scroll-mt-28 max-w-7xl mx-auto px-6 sm:px-12 md:px-20 pb-24 grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10"
             >
                 <div className="flex flex-col justify-center space-y-4">
                     <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-400 ring-1 ring-inset ring-indigo-500/20 w-fit uppercase tracking-wider">
@@ -276,30 +299,30 @@ export default function Home() {
                         </svg>
                     </div>
 
-                    <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
                         Get started in just{" "}
                         <span className="text-indigo-500">
                             three simple steps
                         </span>
                     </h2>
 
-                    <p className="text-base text-slate-500 dark:text-slate-400 max-w-md">
+                    <p className="text-base text-slate-400 max-w-md">
                         Our intuitive platform is built to get you up and
                         running instantly. Follow this quick guide to dive
                         straight into the new interface.
                     </p>
                 </div>
 
-                <div className="relative border-l border-slate-200 dark:border-slate-800 ml-4 md:ml-0 pl-6 space-y-10 py-2">
+                <div className="relative border-l border-slate-800 ml-4 md:ml-0 pl-6 space-y-10 py-2">
                     <div className="relative">
-                        <span className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-[11px] font-bold text-white ring-8 ring-white dark:ring-slate-950">
+                        <span className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-[11px] font-bold text-white ring-8 ring-[#090D16]">
                             1
                         </span>
                         <div className="space-y-1.5">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                            <h3 className="text-lg font-semibold text-white">
                                 Sign Up or Log In
                             </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            <p className="text-sm text-slate-400 leading-relaxed">
                                 Create a secure account or authenticate with
                                 your existing credentials to access your
                                 personalized workspace.
@@ -308,16 +331,16 @@ export default function Home() {
                     </div>
 
                     <div className="relative">
-                        <span className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-[11px] font-bold text-white ring-8 ring-white dark:ring-slate-950">
+                        <span className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-[11px] font-bold text-white ring-8 ring-[#090D16]">
                             2
                         </span>
                         <div className="space-y-1.5">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                                 Launch the App
                             </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            <p className="text-sm text-slate-400 leading-relaxed">
                                 Once inside, a prominent{" "}
-                                <span className="font-semibold text-indigo-500 dark:text-indigo-400">
+                                <span className="font-semibold text-indigo-400">
                                     "Launch App"
                                 </span>{" "}
                                 button will pop up dynamically on your home
@@ -328,14 +351,14 @@ export default function Home() {
                     </div>
 
                     <div className="relative">
-                        <span className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-[11px] font-bold text-white ring-8 ring-white dark:ring-slate-950">
+                        <span className="absolute -left-[39px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-[11px] font-bold text-white ring-8 ring-[#090D16]">
                             3
                         </span>
                         <div className="space-y-1.5">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                            <h3 className="text-lg font-semibold text-white">
                                 Explore the New Interface
                             </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            <p className="text-sm text-slate-400 leading-relaxed">
                                 A powerful, dedicated dashboard interface
                                 unfolds right before you. From here, you can
                                 seamlessly manage your projects, track
@@ -356,189 +379,113 @@ export default function Home() {
             </div>
             <section
                 id="pricing"
-                className="max-w-7xl mx-auto px-20 pb-24 grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 scroll-mt-50"
+                className="scroll-mt-28 max-w-7xl mx-auto px-6 md:px-20 pb-24 grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10"
             >
                 {/* Free Plan */}
-                <div className="w-full h-120 rounded-2xl border border-slate-200 dark:border-white/[0.04] bg-white dark:bg-white/[0.05] hover:border-indigo-500/50 dark:hover:border-white/[0.08] transition-all px-7 py-8 flex flex-col justify-between">
+                <div className="w-full h-full rounded-2xl border border-white/[0.06] bg-white/[0.03] hover:border-white/[0.12] transition-all px-7 py-8 flex flex-col justify-between">
                     <div>
-                        <div className="flex flex-col text-slate-900 dark:text-white gap-4">
+                        <div className="flex flex-col text-white gap-4">
                             <label className="text-2xl font-bold tracking-tight">
                                 Free
                             </label>
                             <div className="flex items-baseline">
-                                <span className="text-slate-400 dark:text-white/50 text-xl font-medium">
+                                <span className="text-white/50 text-xl font-medium">
                                     $
                                 </span>
                                 <span className="text-5xl font-black tracking-tight mx-1">
                                     0
                                 </span>
-                                <span className="text-slate-400 dark:text-white/50 text-sm font-medium">
+                                <span className="text-white/50 text-sm font-medium">
                                     USD/month
                                 </span>
                             </div>
                         </div>
 
-                        <ul className="flex flex-col gap-3 mt-8 text-sm text-slate-600 dark:text-white/80">
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
+                        <ul className="flex flex-col gap-3 mt-8 text-sm text-white/80">
+                            {[
+                                "Core model access",
+                                "Limited messages & uploads",
+                                "Limited note creation",
+                                "Limited memory",
+                            ].map((item) => (
+                                <li
+                                    key={item}
+                                    className="flex items-center gap-2.5"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Core model access
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Limited messages & uploads
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Limited note creation
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Limited memory
-                            </li>
+                                    <svg
+                                        className="w-4 h-4 text-indigo-500 shrink-0"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="2"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M4.5 12.75l6 6 9-13.5"
+                                        />
+                                    </svg>
+                                    {item}
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
-                    <button className="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-sm font-semibold tracking-wide transition-colors cursor-pointer">
-                        Get Started
-                    </button>
+                    <div className="w-full flex items-center justify-center mt-10 py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-white text-sm font-semibold tracking-wide transition-colors cursor-pointer">
+                        <Link href="/register"> Get Started</Link>
+                    </div>
                 </div>
 
                 {/* Pro Plan (Highlighted) */}
-                <div className="w-full h-120 rounded-2xl border-2 border-indigo-500 bg-white dark:bg-white/[0.07] shadow-xl shadow-indigo-500/5 px-7 py-8 flex flex-col justify-between relative">
+                <div className="w-full h-full rounded-2xl border-2 border-indigo-500 bg-white/[0.07] shadow-xl shadow-indigo-500/5 px-7 py-8 flex flex-col justify-between relative">
                     <span className="absolute -top-3 right-6 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                         Popular
                     </span>
                     <div>
-                        <div className="flex flex-col text-slate-900 dark:text-white gap-4">
+                        <div className="flex flex-col text-white gap-4">
                             <label className="text-2xl font-bold tracking-tight">
                                 Pro
                             </label>
                             <div className="flex items-baseline">
-                                <span className="text-slate-400 dark:text-white/50 text-xl font-medium">
+                                <span className="text-white/50 text-xl font-medium">
                                     $
                                 </span>
                                 <span className="text-5xl font-black tracking-tight mx-1">
                                     20
                                 </span>
-                                <span className="text-slate-400 dark:text-white/50 text-sm font-medium">
+                                <span className="text-white/50 text-sm font-medium">
                                     USD/month
                                 </span>
                             </div>
                         </div>
 
-                        <ul className="flex flex-col gap-3 mt-8 text-sm text-slate-600 dark:text-white/80">
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
+                        <ul className="flex flex-col gap-3 mt-8 text-sm text-white/80">
+                            {[
+                                "Advanced computing models",
+                                "Unlimited message allocations",
+                                "Rich media notes studio",
+                                "Extended contextual memory",
+                            ].map((item) => (
+                                <li
+                                    key={item}
+                                    className="flex items-center gap-2.5"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Advanced computing models
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Unlimited message allocations
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Rich media notes studio
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Extended contextual memory
-                            </li>
+                                    <svg
+                                        className="w-4 h-4 text-indigo-500 shrink-0"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="2"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M4.5 12.75l6 6 9-13.5"
+                                        />
+                                    </svg>
+                                    {item}
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
@@ -548,94 +495,56 @@ export default function Home() {
                 </div>
 
                 {/* Team Plan */}
-                <div className="w-full h-120 rounded-2xl border border-slate-200 dark:border-white/[0.04] bg-white dark:bg-white/[0.05] hover:border-indigo-500/50 dark:hover:border-white/[0.08] transition-all px-7 py-8 flex flex-col justify-between">
+                <div className="w-full h-full rounded-2xl border border-white/[0.06] bg-white/[0.03] hover:border-white/[0.12] transition-all px-7 py-8 flex flex-col justify-between">
                     <div>
-                        <div className="flex flex-col text-slate-900 dark:text-white gap-4">
+                        <div className="flex flex-col text-white gap-4">
                             <label className="text-2xl font-bold tracking-tight">
                                 Team
                             </label>
                             <div className="flex items-baseline">
-                                <span className="text-slate-400 dark:text-white/50 text-xl font-medium">
+                                <span className="text-white/50 text-xl font-medium">
                                     $
                                 </span>
                                 <span className="text-5xl font-black tracking-tight mx-1">
                                     50
                                 </span>
-                                <span className="text-slate-400 dark:text-white/50 text-sm font-medium">
+                                <span className="text-white/50 text-sm font-medium">
                                     USD/month
                                 </span>
                             </div>
                         </div>
 
-                        <ul className="flex flex-col gap-3 mt-8 text-sm text-slate-600 dark:text-white/80">
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
+                        <ul className="flex flex-col gap-3 mt-8 text-sm text-white/80">
+                            {[
+                                "Everything in Pro plan",
+                                "Shared workspace & tooling",
+                                "Centralized administrative panel",
+                                "Priority support channels",
+                            ].map((item) => (
+                                <li
+                                    key={item}
+                                    className="flex items-center gap-2.5"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Everything in Pro plan
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Shared workspace & tooling
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Centralized administrative panel
-                            </li>
-                            <li className="flex items-center gap-2.5">
-                                <svg
-                                    className="w-4 h-4 text-indigo-500 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4.5 12.75l6 6 9-13.5"
-                                    />
-                                </svg>
-                                Priority support channels
-                            </li>
+                                    <svg
+                                        className="w-4 h-4 text-indigo-500 shrink-0"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="2"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M4.5 12.75l6 6 9-13.5"
+                                        />
+                                    </svg>
+                                    {item}
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
-                    <button className="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-sm font-semibold tracking-wide transition-colors cursor-pointer">
+                    <button className="w-full py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-white text-sm font-semibold tracking-wide transition-colors cursor-pointer">
                         Contact Sales
                     </button>
                 </div>
@@ -651,13 +560,13 @@ export default function Home() {
             </div>
             <section
                 id="termsofservice"
-                className="scroll-mt-100 max-w-7xl mx-auto px-6 sm:px-12 md:px-20 pb-24 grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10 items-center"
+                className="scroll-mt-28 max-w-7xl mx-auto px-6 sm:px-12 md:px-20 pb-24 grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10 items-center"
             >
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-3">
+                    <h2 className="text-2xl font-bold tracking-tight text-white mb-3">
                         Terms of Service
                     </h2>
-                    <p className="text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <p className="text-base text-slate-400 leading-relaxed">
                         By accessing our platform and launching the app, you
                         agree to abide by our standard usage guidelines, account
                         security protocols, and system policies. Please ensure
@@ -669,7 +578,7 @@ export default function Home() {
                 <div className="flex md:justify-end items-center">
                     <a
                         href="/terms"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors group"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors group"
                     >
                         Read Full Terms of Service
                         <svg
@@ -700,21 +609,21 @@ export default function Home() {
             </div>
             <section
                 id="contacts"
-                className="max-w-7xl mx-auto px-20 pb-24 grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10"
+                className="scroll-mt-28 max-w-7xl mx-auto px-6 md:px-20 pb-24 grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10"
             >
                 <div className="flex flex-col justify-center space-y-4">
-                    <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
                         Let's start a{" "}
                         <span className="text-indigo-500">conversation</span>
                     </h2>
 
-                    <p className="text-base text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
+                    <p className="text-base text-slate-400 max-w-md leading-relaxed">
                         Have questions about our plans, features, or platform
                         capabilities? Drop us a message and our support
                         engineering team will reach out shortly.
                     </p>
 
-                    <div className="pt-4 space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                    <div className="pt-4 space-y-3 text-sm text-slate-400">
                         <div className="flex items-center gap-3">
                             <svg
                                 className="w-5 h-5 text-indigo-500 shrink-0"
@@ -734,41 +643,41 @@ export default function Home() {
                     </div>
                 </div>
 
-                <div className="w-full rounded-2xl border border-slate-200 dark:border-white/[0.04] bg-white dark:bg-white/[0.05] px-8 py-8 shadow-xl shadow-slate-100 dark:shadow-none">
+                <div className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] px-8 py-8 shadow-xl shadow-black/20">
                     <form
                         className="flex flex-col gap-5"
                         onSubmit={(e) => e.preventDefault()}
                     >
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                                 Full Name
                             </label>
                             <input
                                 type="text"
                                 placeholder="John Doe"
-                                className="w-full px-4 py-3 text-sm rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/30 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 transition-colors"
+                                className="w-full px-4 py-3 text-sm rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-indigo-500 transition-colors"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                                 Email Address
                             </label>
                             <input
                                 type="email"
                                 placeholder="john@example.com"
-                                className="w-full px-4 py-3 text-sm rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/30 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 transition-colors"
+                                className="w-full px-4 py-3 text-sm rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-indigo-500 transition-colors"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                                 Message
                             </label>
                             <textarea
-                                rows="4"
+                                rows={4}
                                 placeholder="How can we help your team?"
-                                className="w-full px-4 py-3 text-sm rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/30 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 transition-colors resize-none"
+                                className="w-full px-4 py-3 text-sm rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
                             />
                         </div>
 

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 export default function Noteslist({ notes = [], activeNoteId }) {
     const [dbNotes, setDbNotes] = useState(notes);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [flag, setFlag] = useState();
+    const { auth } = usePage().props;
 
     useEffect(() => {
         let isMounted = true;
@@ -50,6 +50,10 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                 "http://127.0.0.1:8000/api/notes?ts=" + Date.now(),
                 {
                     cache: "no-store",
+                    credentials: "same-origin",
+                    headers: {
+                        Accept: "application/json",
+                    },
                 },
             );
             const data = await res.json();
@@ -64,8 +68,13 @@ export default function Noteslist({ notes = [], activeNoteId }) {
         }
     };
 
-    const effectiveNotes = dbNotes || [];
+    const rawNote = dbNotes || [];
 
+    const effectiveNotes = rawNote.filter(
+        (note) => Number(note.author) === auth.user.id,
+    );
+
+    console.log(auth.user.id);
     // Helper to format string keys into human-readable filter names
     const formatFilterName = (name) => {
         return name
@@ -151,7 +160,9 @@ export default function Noteslist({ notes = [], activeNoteId }) {
             let data = {};
             try {
                 data = await res.json();
-            } catch {}
+            } catch {
+                console.log(data.message);
+            }
             throw new Error(data?.message || "Failed to delete note");
         }
 
@@ -162,8 +173,7 @@ export default function Noteslist({ notes = [], activeNoteId }) {
         // await refetchNotes();
     };
 
-        const [expanded, setExpanded] = useState(false);
-
+    const [expanded, setExpanded] = useState(false);
 
     return (
         <div className="min-h-screen py-5 px-7 w-full border border-white/10 bg-[#0A0B0D] text-[#E7E5E0]">
@@ -211,7 +221,7 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                                 {/* Header: Title & Layout Badge */}
                                 <div className="flex items-start justify-between gap-2">
                                     <h4 className="text-sm font-medium text-slate-200 line-clamp-1 group-hover:text-white transition-colors">
-                                        {note.title || `Untitled Document`}
+                                        {note.title || `Untitled Document`}{" "}
                                     </h4>
                                     <div className="flex items-start justify-between gap-2">
                                         <span
@@ -252,7 +262,6 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                                 <div className="text-xs text-slate-400 overflow-y-auto scroll leading-relaxed prose">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
-                                        
                                         components={{
                                             table: ({ children }) => (
                                                 <table className="w-full border-collapse border border-[#262A31] my-4">
@@ -328,6 +337,9 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                                                 />
                                             </svg>
                                         </button>
+
+                                        {/* delete note button */}
+
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
