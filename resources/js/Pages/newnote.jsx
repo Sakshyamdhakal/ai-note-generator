@@ -7,6 +7,7 @@ const FILTERS = [
     { id: "bullet_points", label: "Bullets" },
     { id: "summary", label: "Summary" },
     { id: "academic", label: "Academic" },
+    {id:"q/a", label: "Q/A"}
 ];
 
 export default function Newnote() {

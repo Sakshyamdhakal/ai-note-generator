@@ -106,6 +106,11 @@ class AINoteController extends Controller
                 Format the output using formal,
                 academic language with clear section headings.
             ";
+        } elseif ($filter === 'q/a') {
+            $instructions .= "
+                Format the output as question and answer format,
+                as if it is for some test .
+            ";
         }
 
         $apiKey = env('GEMINI_API_KEY');
