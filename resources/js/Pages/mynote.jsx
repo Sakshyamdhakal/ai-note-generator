@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { router, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
+
 export default function Noteslist({ notes = [], activeNoteId }) {
     const [dbNotes, setDbNotes] = useState(notes);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [expanded, setExpanded] = useState(null);
+
     const { auth } = usePage().props;
 
     useEffect(() => {
@@ -14,24 +17,34 @@ export default function Noteslist({ notes = [], activeNoteId }) {
         const loadNotes = async () => {
             setLoading(true);
             setError("");
+
             try {
                 const res = await fetch(
                     "http://127.0.0.1:8000/api/notes?ts=" + Date.now(),
                     {
                         cache: "no-store",
-                    },
+                    }
                 );
+
                 const data = await res.json();
 
                 if (!res.ok || !data.success) {
-                    throw new Error(data?.message || "Failed to load notes");
+                    throw new Error(
+                        data?.message || "Failed to load notes"
+                    );
                 }
 
-                if (isMounted) setDbNotes(data.notes || []);
+                if (isMounted) {
+                    setDbNotes(data.notes || []);
+                }
             } catch (e) {
-                if (isMounted) setError(e?.message || "Failed to load notes");
+                if (isMounted) {
+                    setError(e?.message || "Failed to load notes");
+                }
             } finally {
-                if (isMounted) setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
@@ -44,8 +57,8 @@ export default function Noteslist({ notes = [], activeNoteId }) {
 
     const refetchNotes = async () => {
         try {
-            // Keep UI responsive; only show loading when initial load.
             setError("");
+
             const res = await fetch(
                 "http://127.0.0.1:8000/api/notes?ts=" + Date.now(),
                 {
@@ -54,12 +67,15 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                     headers: {
                         Accept: "application/json",
                     },
-                },
+                }
             );
+
             const data = await res.json();
 
             if (!res.ok || !data.success) {
-                throw new Error(data?.message || "Failed to load notes");
+                throw new Error(
+                    data?.message || "Failed to load notes"
+                );
             }
 
             setDbNotes(data.notes || []);
@@ -71,16 +87,18 @@ export default function Noteslist({ notes = [], activeNoteId }) {
     const rawNote = dbNotes || [];
 
     const effectiveNotes = rawNote.filter(
-        (note) => Number(note.author) === auth.user.id,
+        (note) => Number(note.author) === auth.user.id
     );
 
-    console.log(auth.user.id);
-    // Helper to format string keys into human-readable filter names
     const formatFilterName = (name) => {
         return name
             ? name
                   .split("_")
-                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                  .map(
+                      (w) =>
+                          w.charAt(0).toUpperCase() +
+                          w.slice(1)
+                  )
                   .join(" ")
             : "AI Cleaned";
     };
@@ -88,21 +106,21 @@ export default function Noteslist({ notes = [], activeNoteId }) {
     const downloadNote = (note) => {
         window.open(
             `http://127.0.0.1:8000/api/notes/${note.id}/download`,
-            "_blank",
+            "_blank"
         );
     };
 
     const isFavorite = async (id) => {
-        // Optimistic UI: flip favorite immediately.
         setDbNotes((prev) =>
             (prev || []).map((n) =>
                 n.id === id
                     ? {
                           ...n,
-                          favorite: Number(n.favorite) === 1 ? 0 : 1,
+                          favorite:
+                              Number(n.favorite) === 1 ? 0 : 1,
                       }
-                    : n,
-            ),
+                    : n
+            )
         );
 
         try {
@@ -112,33 +130,44 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                     "Content-Type": "application/json",
                     "X-Requested-With": "XMLHttpRequest",
                     "X-CSRF-TOKEN": document
-                        .querySelector("meta[name='csrf-token']")
+                        .querySelector(
+                            "meta[name='csrf-token']"
+                        )
                         ?.getAttribute("content"),
                 },
                 body: JSON.stringify({}),
             });
 
             const data = await res.json().catch(() => ({}));
+
             if (!res.ok || !data.success) {
-                throw new Error(data?.message || "Failed to update favorite");
+                throw new Error(
+                    data?.message ||
+                        "Failed to update favorite"
+                );
             }
 
-            // Sync with server value.
             setDbNotes((prev) =>
                 (prev || []).map((n) =>
                     n.id === id
                         ? {
                               ...n,
                               favorite:
-                                  Number(data.note?.favorite) === 1 ? 1 : 0,
+                                  Number(
+                                      data.note?.favorite
+                                  ) === 1
+                                      ? 1
+                                      : 0,
                           }
-                        : n,
-                ),
+                        : n
+                )
             );
         } catch (e) {
             console.error(e);
-            setError(e?.message || "Failed to update favorite");
-            // Revert by refetching.
+            setError(
+                e?.message ||
+                    "Failed to update favorite"
+            );
             refetchNotes();
         }
     };
@@ -151,29 +180,34 @@ export default function Noteslist({ notes = [], activeNoteId }) {
         const res = await fetch(`/notes/${id}/delete`, {
             method: "DELETE",
             headers: {
-                ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
+                ...(csrf
+                    ? { "X-CSRF-TOKEN": csrf }
+                    : {}),
             },
         });
 
-        // Some Laravel deletes return 204 with an empty body
         if (!res.ok) {
             let data = {};
+
             try {
                 data = await res.json();
             } catch {
                 console.log(data.message);
             }
-            throw new Error(data?.message || "Failed to delete note");
+
+            throw new Error(
+                data?.message || "Failed to delete note"
+            );
         }
 
-        // Optimistically remove from UI
-        setDbNotes((prev) => (prev || []).filter((n) => n.id !== id));
+        setDbNotes((prev) =>
+            (prev || []).filter((n) => n.id !== id)
+        );
 
-        // Optional: you can refetch for consistency
-        // await refetchNotes();
+        if (expanded === id) {
+            setExpanded(null);
+        }
     };
-
-    const [expanded, setExpanded] = useState(false);
 
     return (
         <div className="min-h-screen py-5 px-7 w-full border border-white/10 bg-[#0A0B0D] text-[#E7E5E0]">
@@ -183,7 +217,6 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                 </h3>
             </div>
 
-            {/* Scrollable Note Container */}
             <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center h-40 text-center border-2 border-dashed border-slate-800/40 rounded-xl p-4">
@@ -199,47 +232,58 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                     </div>
                 ) : (
                     effectiveNotes.map((note) => {
-                        const isActive = activeNoteId === note.id;
+                        const isActive =
+                            activeNoteId === note.id;
+                        const isExpanded =
+                            expanded === note.id;
+
                         return (
                             <div
                                 onClick={() =>
-                                    setExpanded(
-                                        expanded === note.id ? null : note.id,
+                                    setExpanded((prev) =>
+                                        prev === note.id
+                                            ? null
+                                            : note.id
                                     )
                                 }
                                 key={note.id}
-                                // onClick={() => onSelectNote(note)}
-                                className={`group relative flex flex-col gap-2 p-3 rounded-xl border transition-all duration-200 text-left
-                                    ${
-                                        isActive
-                                            ? "bg-slate-800/40 border-indigo-500/40 shadow-lg shadow-indigo-500/5 "
-                                            : "cursor-pointer bg-slate-900/40 border-slate-800/60 hover:bg-slate-850/30 hover:border-slate-700/60  h-30 focus:h-300   transition-all duration-500 ease-in-out"
-                                    }
-                                    ${expanded === note.id ? "h-170" : "h-30"}
-                                    `}
+                                className={`group relative flex flex-col gap-2 p-3 rounded-xl border text-left overflow-hidden transition-all duration-500 ease-in-out ${
+                                    isActive
+                                        ? "bg-slate-800/40 border-indigo-500/40 shadow-lg shadow-indigo-500/5"
+                                        : "cursor-pointer bg-slate-900/40 border-slate-800/60 hover:bg-slate-850/30 hover:border-slate-700/60"
+                                } ${
+                                    isExpanded
+                                        ? "h-[600px]"
+                                        : "h-[120px]"
+                                }`}
                             >
-                                {/* Header: Title & Layout Badge */}
-                                <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-start justify-between gap-2 shrink-0">
                                     <h4 className="text-sm font-medium text-slate-200 line-clamp-1 group-hover:text-white transition-colors">
-                                        {note.title || `Untitled Document`}{" "}
+                                        {note.title ||
+                                            "Untitled Document"}
                                     </h4>
+
                                     <div className="flex items-start justify-between gap-2">
-                                        <span
-                                            className={`text-[10px] px-2 py-0.5 rounded-full border font-mono tracking-wide shrink-0 bg-[#D9A15B] text-[#14161A] border-[#D9A15B]`}
-                                        >
-                                            {formatFilterName(note.filterUsed)}
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full border font-mono tracking-wide shrink-0 bg-[#D9A15B] text-[#14161A] border-[#D9A15B]">
+                                            {formatFilterName(
+                                                note.filterUsed
+                                            )}
                                         </span>
 
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                isFavorite(note.id);
+                                                isFavorite(
+                                                    note.id
+                                                );
                                             }}
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 fill={
-                                                    Number(note.favorite) === 1
+                                                    Number(
+                                                        note.favorite
+                                                    ) === 1
                                                         ? "#FFD700"
                                                         : "none"
                                                 }
@@ -251,44 +295,63 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
-                                                    d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"
+                                                    d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.563.563 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"
                                                 />
                                             </svg>
                                         </button>
                                     </div>
                                 </div>
 
-                                {/* Sneak Peek Text Content Snippet */}
-                                <div className="text-xs text-slate-400 overflow-y-auto scroll leading-relaxed prose">
+                                <div
+                                    className={`text-xs text-slate-400 leading-relaxed prose prose-invert max-w-none min-h-0 ${
+                                        isExpanded
+                                            ? "overflow-y-auto"
+                                            : "line-clamp-3 overflow-hidden"
+                                    }`}
+                                >
                                     <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
+                                        remarkPlugins={[
+                                            remarkGfm,
+                                        ]}
                                         components={{
-                                            table: ({ children }) => (
+                                            table: ({
+                                                children,
+                                            }) => (
                                                 <table className="w-full border-collapse border border-[#262A31] my-4">
                                                     {children}
                                                 </table>
                                             ),
-                                            thead: ({ children }) => (
+                                            thead: ({
+                                                children,
+                                            }) => (
                                                 <thead className="bg-[#1A1C20] text-[#E7E5E0]">
                                                     {children}
                                                 </thead>
                                             ),
-                                            tbody: ({ children }) => (
+                                            tbody: ({
+                                                children,
+                                            }) => (
                                                 <tbody className="text-[#E7E5E0]">
                                                     {children}
                                                 </tbody>
                                             ),
-                                            tr: ({ children }) => (
+                                            tr: ({
+                                                children,
+                                            }) => (
                                                 <tr className="border-b border-[#262A31]">
                                                     {children}
                                                 </tr>
                                             ),
-                                            th: ({ children }) => (
+                                            th: ({
+                                                children,
+                                            }) => (
                                                 <th className="border border-[#262A31] px-4 py-2 text-left text-[#E7E5E0]">
                                                     {children}
                                                 </th>
                                             ),
-                                            td: ({ children }) => (
+                                            td: ({
+                                                children,
+                                            }) => (
                                                 <td className="border border-[#262A31] px-4 py-2 text-[#E7E5E0]">
                                                     {children}
                                                 </td>
@@ -299,25 +362,28 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                                     </ReactMarkdown>
                                 </div>
 
-                                {/* Footer Data & Hidden Fast Action Hover Controls */}
-                                <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-800/30">
+                                <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-800/30 shrink-0">
                                     <span className="text-[10px] text-slate-500 font-medium">
                                         {note.created_at
                                             ? new Date(
-                                                  note.created_at,
-                                              ).toLocaleTimeString([], {
-                                                  hour: "2-digit",
-                                                  minute: "2-digit",
-                                              })
+                                                  note.created_at
+                                              ).toLocaleTimeString(
+                                                  [],
+                                                  {
+                                                      hour: "2-digit",
+                                                      minute: "2-digit",
+                                                  }
+                                              )
                                             : "--/--/----"}
                                     </span>
 
-                                    {/* Action row visible instantly on hover */}
                                     <div className="flex items-center gap-2 opacity-100 group-hover:opacity-100 transition-opacity duration-150">
                                         <button
                                             onClick={(e) => {
-                                                e.stopPropagation(); // Stop click from altering standard panel selection
-                                                downloadNote(note);
+                                                e.stopPropagation();
+                                                downloadNote(
+                                                    note
+                                                );
                                             }}
                                             className="cursor-pointer text-slate-400 hover:text-emerald-400 p-1 rounded hover:bg-slate-800 transition-colors"
                                             title="Download File"
@@ -338,12 +404,12 @@ export default function Noteslist({ notes = [], activeNoteId }) {
                                             </svg>
                                         </button>
 
-                                        {/* delete note button */}
-
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                onDeleteNote(note.id);
+                                                onDeleteNote(
+                                                    note.id
+                                                );
                                             }}
                                             className="cursor-pointer text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition-colors"
                                             title="Delete Note"

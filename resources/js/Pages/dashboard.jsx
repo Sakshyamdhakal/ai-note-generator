@@ -47,7 +47,7 @@ export default function Dashboard() {
             <div className="flex flex-1 overflow-hidden">
 
                 <Sidebar
-                    className="w-[300px] shrink-0"
+                    className="w-[350px] shrink-0"
                     activeView={activeView}
                     onViewChange={setActiveView}
                 />

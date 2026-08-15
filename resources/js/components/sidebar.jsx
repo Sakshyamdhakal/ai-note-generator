@@ -125,7 +125,7 @@ export default function Sidebar({ className, onViewChange, activeView }) {
                             </div>
 
                             <span className="truncate">
-                                {auth.user.name}
+                                {auth.user.name.toUpperCase()}
                             </span>
                         </button>
                     )}
