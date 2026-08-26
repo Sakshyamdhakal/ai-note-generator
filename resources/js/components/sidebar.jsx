@@ -1,26 +1,20 @@
+import Edit from "@/Pages/Profile/Edit";
 import { Link, router, usePage } from "@inertiajs/react";
+import Dropdown from "./Dropdown";
 
 export default function Sidebar({ className, onViewChange, activeView }) {
     const { auth } = usePage().props;
 
-    const logout = () => {
-        router.post(route("logout"));
-    };
-
     return (
         <aside className={`${className || ""} shrink-0`}>
-
             <div className="border-r border-white/10 h-full flex flex-col justify-between">
-
                 {/* Workspace */}
                 <div className="flex flex-col mx-10 my-10 gap-6">
-
                     <span className="text-lg text-white/50 uppercase">
                         Workspace
                     </span>
 
                     <div className="w-full flex flex-col gap-2">
-
                         {/* My Notes */}
                         <button
                             type="button"
@@ -46,7 +40,6 @@ export default function Sidebar({ className, onViewChange, activeView }) {
                                     d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 1 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
                                 />
                             </svg>
-
                             My Notes
                         </button>
 
@@ -67,7 +60,12 @@ export default function Sidebar({ className, onViewChange, activeView }) {
                                 viewBox="0 0 24 24"
                                 strokeWidth="1.5"
                                 stroke="currentColor"
-                                className="size-5"
+                                className={`size-5
+                                ${
+                                    activeView === "favorites"
+                                        ? "fill-[#D9A15B] text-[#D9A15B]"
+                                        : ""
+                                }`}
                             >
                                 <path
                                     strokeLinecap="round"
@@ -75,16 +73,13 @@ export default function Sidebar({ className, onViewChange, activeView }) {
                                     d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.563.563 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"
                                 />
                             </svg>
-
                             Favourites
                         </button>
-
                     </div>
                 </div>
 
                 {/* Bottom section */}
                 <div className="flex flex-col mx-10 gap-3 mb-6">
-
                     {/* Settings */}
                     <button
                         type="button"
@@ -110,14 +105,14 @@ export default function Sidebar({ className, onViewChange, activeView }) {
                                 d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                             />
                         </svg>
-
                         Settings
                     </button>
 
                     {/* Profile */}
-                    {auth?.user && (
+                    {/* {auth?.user && (
                         <button
                             type="button"
+                            onClick={() => onViewChange("profile")}
                             className="flex items-center gap-2 text-white/60 hover:text-white hover:bg-white/10 py-2 px-3 rounded-xl cursor-pointer transition-all"
                         >
                             <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold">
@@ -128,8 +123,46 @@ export default function Sidebar({ className, onViewChange, activeView }) {
                                 {auth.user.name.toUpperCase()}
                             </span>
                         </button>
-                    )}
+                    )} */}
 
+                    <Dropdown>
+                        <Dropdown.Trigger>
+                            <span className="inline-flex rounded-md">
+                                <button
+                                    type="button"
+                                    className="inline-flex items-center gap-2 text-white/60 hover:text-white hover:bg-white/10 py-2 px-3 rounded-xl cursor-pointer transition-all"
+                                >
+                                    {auth.user.name}
+
+                                    <svg
+                                        className="-me-0.5 ms-2 h-4 w-4"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                </button>
+                            </span>
+                        </Dropdown.Trigger>
+
+                        <Dropdown.Content>
+                            <Dropdown.Link href={route("profile.edit")}>
+                                Profile
+                            </Dropdown.Link>
+                            <Dropdown.Link
+                                href={route("logout")}
+                                method="post"
+                                as="button"
+                            >
+                                Log Out
+                            </Dropdown.Link>
+                        </Dropdown.Content>
+                    </Dropdown>
                 </div>
             </div>
         </aside>

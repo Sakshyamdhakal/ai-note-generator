@@ -4,6 +4,7 @@ import Sidebar from "../components/sidebar";
 import Newnote from "./newnote";
 import Noteslist from "./mynote";
 import Favoritepage from "./favorite";
+import Edit from "./Profile/Edit";
 
 export default function Dashboard() {
     const [activeView, setActiveView] = useState("dashboard");
@@ -30,6 +31,9 @@ export default function Dashboard() {
 
             case "favorites":
                 return <Favoritepage />;
+            
+            case "profile":
+                return <Edit />
 
             default:
                 return <Newnote />;
@@ -47,7 +51,7 @@ export default function Dashboard() {
             <div className="flex flex-1 overflow-hidden">
 
                 <Sidebar
-                    className="w-[350px] shrink-0"
+                    className="w-[300px] shrink-0"
                     activeView={activeView}
                     onViewChange={setActiveView}
                 />
